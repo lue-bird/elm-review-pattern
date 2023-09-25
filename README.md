@@ -2,7 +2,7 @@
 
 [`elm-review`](https://package.elm-lang.org/packages/jfmengels/elm-review/latest/) rules
 - [`Review.Pattern.As.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/Review-Pattern-As#forbid): Forbid `... as ..variable..` patterns.
-- [`Review.Pattern.Record.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/Review-Pattern-Record#forbid): Forbid `{ field, ... }` patterns.
+- [`Review.Pattern.Record.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/Review-Pattern-Record#forbid): Forbid `{ field, ... }` record patterns.
 
 Check their module documentation to find out why you might want to enable these rules.
 
@@ -21,11 +21,12 @@ will run both rules. Add `--rules ...` to select only one.
 module ReviewConfig exposing (config)
 
 import Review.Pattern.As
+import Review.Pattern.Record
 import Review.Rule exposing (Rule)
 
 config : List Rule
 config =
     [ Review.Pattern.As.forbid
+    , Review.Pattern.Record.forbid
     ]
 ```
-
