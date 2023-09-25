@@ -11,7 +11,7 @@
             "stil4m/elm-syntax": "7.3.2",
             "the-sett/elm-pretty-printer": "3.0.0",
             "the-sett/elm-syntax-dsl": "6.0.2",
-            "lue-bird/elm-review-pattern": "1.0.0"
+            "lue-bird/elm-review-pattern": "1.0.1"
         },
         "indirect": {
             "Chadtech/elm-bool-extra": "2.4.2",
