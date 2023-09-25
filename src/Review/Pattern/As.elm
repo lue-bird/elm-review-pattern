@@ -91,6 +91,10 @@ will be fixed to
         in
         Html.text "Hello!"
 
+This fix doesn't try to merge this destructuring into existing lets.
+Add [`jfmengels/elm-review-simplify`](https://dark.elm.dmy.fr/packages/jfmengels/elm-review-simplify/latest)
+will do this for you.
+
 -}
 forbid : Rule
 forbid =
