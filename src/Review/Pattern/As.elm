@@ -61,7 +61,7 @@ import Elm.Syntax.Expression exposing (Expression)
 import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node exposing (Node(..))
 import Elm.Syntax.Pattern exposing (Pattern)
-import Elm.Syntax.Range exposing (Location, Range)
+import Elm.Syntax.Range exposing (Location)
 import ElmPattern.Extra
 import Pretty
 import Review.Fix
@@ -77,14 +77,12 @@ import Set exposing (Set)
         [ Review.Pattern.As.forbid
         ]
 
-
-## Fail
+For example
 
     view ({ windowSize } as model) =
         Html.text "Hello!"
 
-
-## Success
+will be fixed to
 
     view model =
         let

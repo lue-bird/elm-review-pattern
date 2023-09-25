@@ -12,10 +12,12 @@ when inside the directory containing this file.
 -}
 
 import Review.Pattern.As
+import Review.Pattern.Record
 import Review.Rule exposing (Rule)
 
 
 config : List Rule
 config =
     [ Review.Pattern.As.forbid
+    , Review.Patter.Record.forbid
     ]
