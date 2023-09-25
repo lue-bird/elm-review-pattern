@@ -2,6 +2,8 @@ module Review.Pattern.As exposing (forbid)
 
 {-| Forbid `... as ..variable..` patterns.
 
+@docs forbid
+
 
 ## why
 
@@ -49,8 +51,6 @@ module Review.Pattern.As exposing (forbid)
                     scoreUi (List.Nonempty.maximum ( scoresHead, scoresTail ))
 
     There are many more reasons for not introducing variables like that, see [`VariablesBetweenCaseOf.AccessInCases.forbid`](https://dark.elm.dmy.fr/packages/lue-bird/elm-review-variables-between-case-of-access-in-cases/latest/#why).
-
-@docs forbid
 
 -}
 
