@@ -8,12 +8,12 @@ Check their module documentation to find out why you might want to enable these 
 
 ## try
 
-You can try the example configuration above out by running the following command:
+You can try the example configuration below out using
 
 ```bash
 elm-review --template lue-bird/elm-review-pattern/example
 ```
-will run both rules. Add `--rules ...` to select only one.
+which will run both rules. Add `--rules ...` to select only one.
 
 ## configure
 
