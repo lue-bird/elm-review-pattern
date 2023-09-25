@@ -275,7 +275,7 @@ checkPattern config patternNode =
                         { message = "as pattern is forbidden"
                         , details =
                             [ "The variable introduced in this ... as " ++ variable ++ " pattern has a broader type than the case allows. It's best to convert the narrow values into a broad type as late as possible or not at all."
-                            , "Using `as` in general is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                            , "Using `as` in general is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                             ]
                         }
                         variableRange
@@ -286,7 +286,7 @@ checkPattern config patternNode =
                         { message = "as pattern is forbidden"
                         , details =
                             [ "You can replace this ... as " ++ variable ++ " pattern by a let."
-                            , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                            , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                             ]
                         }
                         variableRange

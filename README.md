@@ -1,6 +1,6 @@
-# elm-review-pattern-as
+# elm-review-pattern
 
-[`elm-review`](https://package.elm-lang.org/packages/jfmengels/elm-review/latest/) rule [`Review.Pattern.As.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/1.0.0/Review-Pattern-As#forbid): Forbid `... as ..variable..` patterns.
+[`elm-review`](https://package.elm-lang.org/packages/jfmengels/elm-review/latest/) rule [`Review.Pattern.As.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/Review-Pattern-As#forbid): Forbid `... as ..variable..` patterns.
 
 ## why
 
@@ -54,7 +54,7 @@
 You can try the example configuration above out by running the following command:
 
 ```bash
-elm-review --template lue-bird/elm-review-pattern-as/example
+elm-review --template lue-bird/elm-review-pattern/example
 ```
 
 ## configure

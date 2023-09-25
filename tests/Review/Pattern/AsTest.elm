@@ -33,7 +33,7 @@ a ({ field } as record) =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -64,7 +64,7 @@ a =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -96,7 +96,7 @@ a =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -128,7 +128,7 @@ a =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -164,7 +164,7 @@ a maybe =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -203,7 +203,7 @@ a maybe =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "You can replace this ... as record pattern by a let."
-                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "record"
                             }
@@ -242,7 +242,7 @@ a =
                             { message = "as pattern is forbidden"
                             , details =
                                 [ "The variable introduced in this ... as maybe pattern has a broader type than the case allows. It's best to convert the narrow values into a broad type as late as possible or not at all."
-                                , "Using `as` in general is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern-as/latest."
+                                , "Using `as` in general is often less readable and tricky to use well, see the rule's readme: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest."
                                 ]
                             , under = "maybe"
                             }
