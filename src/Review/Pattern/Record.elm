@@ -69,7 +69,7 @@ module Review.Pattern.Record exposing (forbid)
 
     future iteration
 
-        module Ui exposing (icon, image)
+        module Ui exposing (icon, image, url)
 
         image { proportions, url } =
             ...
@@ -82,7 +82,7 @@ module Review.Pattern.Record exposing (forbid)
 
     Oh well, another clash
 
-        module Ui exposing (icon, image)
+        module Ui exposing (icon, image, url)
 
         image ({ proportions } as config) =
             ...
