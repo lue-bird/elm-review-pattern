@@ -1,6 +1,6 @@
 module ElmPattern.Extra exposing (sub)
 
-import Elm.Syntax.Node exposing (Node(..))
+import Elm.Syntax.Node exposing (Node)
 import Elm.Syntax.Pattern exposing (Pattern(..))
 
 
@@ -30,7 +30,7 @@ sub pattern =
         ParenthesizedPattern inParens ->
             [ inParens ]
 
-        VarPattern name ->
+        VarPattern _ ->
             []
 
         AllPattern ->
