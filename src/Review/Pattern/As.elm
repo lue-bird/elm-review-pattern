@@ -18,7 +18,9 @@ module Review.Pattern.As exposing (forbid)
                     lambda
             in
             x
+
   - less syntax to learn to use right and keep in your head
+
   - `as` in `case of` patterns can create variables with types that know less than you:
 
         highestScoreUi ... =
@@ -157,7 +159,6 @@ type alias ProjectContext =
 type alias ModuleContext =
     { moduleName : ModuleName
     , moduleNameLookup : ModuleNameLookupTable
-    , extractSourceCode : Range -> String
     , importSingleVariants : Set ( ModuleName, String )
     , moduleSingleVariants : Set String
     }
@@ -187,17 +188,15 @@ moduleContextToProject =
 projectContextToModule : Rule.ContextCreator ProjectContext ModuleContext
 projectContextToModule =
     Rule.initContextCreator
-        (\moduleName moduleNameLookup extractSourceCode projectContext ->
+        (\moduleName moduleNameLookup projectContext ->
             { moduleName = moduleName
             , moduleNameLookup = moduleNameLookup
-            , extractSourceCode = extractSourceCode
             , importSingleVariants = projectContext.singleVariants
             , moduleSingleVariants = Set.empty
             }
         )
         |> Rule.withModuleName
         |> Rule.withModuleNameLookupTable
-        |> Rule.withSourceCodeExtractor
 
 
 foldProjectContexts : ProjectContext -> ProjectContext -> ProjectContext
@@ -216,7 +215,6 @@ visitDeclaration (Node _ declaration) context =
                         , moduleSingleVariants = context.moduleSingleVariants
                         , importSingleVariants = context.importSingleVariants
                         , moduleNameLookup = context.moduleNameLookup
-                        , extractSourceCode = context.extractSourceCode
                         }
                     )
 
@@ -252,7 +250,6 @@ expressionVisitor expression context =
                     , moduleSingleVariants = context.moduleSingleVariants
                     , importSingleVariants = context.importSingleVariants
                     , moduleNameLookup = context.moduleNameLookup
-                    , extractSourceCode = context.extractSourceCode
                     }
                 )
                 lambda.args
@@ -266,7 +263,6 @@ expressionVisitor expression context =
                             , moduleSingleVariants = context.moduleSingleVariants
                             , importSingleVariants = context.importSingleVariants
                             , moduleNameLookup = context.moduleNameLookup
-                            , extractSourceCode = context.extractSourceCode
                             }
                 )
                 caseBlock.cases
@@ -282,7 +278,6 @@ expressionVisitor expression context =
                                     , moduleSingleVariants = context.moduleSingleVariants
                                     , importSingleVariants = context.importSingleVariants
                                     , moduleNameLookup = context.moduleNameLookup
-                                    , extractSourceCode = context.extractSourceCode
                                     }
                                 )
                                 (Elm.Syntax.Node.value letFunctionOrValueDeclaration.declaration).arguments
@@ -294,7 +289,6 @@ expressionVisitor expression context =
                                     , moduleSingleVariants = context.moduleSingleVariants
                                     , importSingleVariants = context.importSingleVariants
                                     , moduleNameLookup = context.moduleNameLookup
-                                    , extractSourceCode = context.extractSourceCode
                                     }
                 )
                 letBlock.declarations
@@ -308,7 +302,6 @@ checkPattern :
     , importSingleVariants : Set ( ModuleName, String )
     , moduleSingleVariants : Set String
     , moduleNameLookup : ModuleNameLookupTable
-    , extractSourceCode : Range -> String
     }
     -> Node Pattern
     -> List (Rule.Error {})
