@@ -1,4 +1,4 @@
-# elm-review-pattern
+# [elm-review-pattern](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/)
 
 [`elm-review`](https://package.elm-lang.org/packages/jfmengels/elm-review/latest/) rules
 - [`Review.Pattern.As.forbid`](https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/1.0.0/Review-Pattern-As#forbid): Forbid `... as ..variable..` patterns.
