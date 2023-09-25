@@ -2,6 +2,52 @@ module Review.Pattern.As exposing (forbid)
 
 {-| Forbid `... as ..variable..` patterns.
 
+
+## why
+
+  - `as` can quickly lead to barely readable, long patterns:
+
+        Node _ (Expression.Lambda ({ argumentPatterns, resultExpression, arrowRange } as lambda)) ->
+            x
+
+    compared to
+
+        Node _ (Expression.Lambda lambda) ->
+            let
+                { argumentPatterns, resultExpression, arrowRange } =
+                    lambda
+            in
+            x
+  - less syntax to learn to use right and keep in your head
+  - `as` in `case of` patterns can create variables with types that know less than you:
+
+        highestScoreUi ... =
+            case computeScores ... of
+                [] ->
+                    textUi "no scores, yet"
+
+                (head :: _) as scores ->
+                    case List.maximum scores of
+                        -- This can never happen
+                        Nothing ->
+                            -- so we'll just use the head
+                            scoreUi head
+
+                        Just highestFound ->
+                            scoreUi highestFound
+
+    compared to
+
+        highestScoreUi ... =
+            case computeScores ... of
+                [] ->
+                    textUi "no scores, yet"
+
+                scoresHead :: scoresTail ->
+                    scoreUi (List.Nonempty.maximum ( scoresHead, scoresTail ))
+
+    There are many more reasons for not introducing variables like that, see [`VariablesBetweenCaseOf.AccessInCases.forbid`](https://dark.elm.dmy.fr/packages/lue-bird/elm-review-variables-between-case-of-access-in-cases/latest/#why).
+
 @docs forbid
 
 -}
