@@ -26,7 +26,7 @@ import Review.Rule exposing (Rule)
 
 config : List Rule
 config =
-    [ Review.Pattern.As.forbid
-    , Review.Pattern.Record.forbid
+    [ Review.Pattern.Record.forbid
+    , Review.Pattern.As.forbid
     ]
 ```
