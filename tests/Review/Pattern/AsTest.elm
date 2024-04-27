@@ -41,7 +41,7 @@ a ({ field } as record) =
                                 """module A exposing (..)
 a (record) =
     let
-        { field } =
+        ({ field }) =
             record
     in
     f field
@@ -74,7 +74,7 @@ a =
     let
         b (record) =
             let
-                { field } =
+                ({ field }) =
                     record
             in
             f field
@@ -105,7 +105,7 @@ a =
 a =
     \\(record) ->
         let
-            { field } =
+            ({ field }) =
                 record
         in
         f field
@@ -140,7 +140,7 @@ a =
             x
     in
     let
-        { field } =
+        ({ field }) =
             record
     in
     f field
@@ -177,7 +177,7 @@ a maybe =
 
         Just (record) ->
             let
-                { field } =
+                ({ field }) =
                     record
             in
             f field
@@ -218,7 +218,7 @@ a maybe =
 
         Just (record) ->
             let
-                Single { field } =
+                (Single { field }) =
                     record
             in
             f field

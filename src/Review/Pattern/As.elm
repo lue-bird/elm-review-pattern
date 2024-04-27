@@ -344,12 +344,12 @@ checkPattern config patternNode =
                           Review.Fix.insertAt intoExpressionStart
                             ([ "let\n"
                              , expressionIndentation
-                             , "    "
+                             , "    ("
                              , patternInAs
                                 |> Elm.Syntax.Node.value
                                 |> Elm.Pretty.prettyPattern
                                 |> Pretty.pretty 100
-                             , " =\n"
+                             , ") =\n"
                              , expressionIndentation
                              , "        "
                              , variable
