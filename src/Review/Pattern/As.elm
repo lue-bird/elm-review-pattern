@@ -55,15 +55,13 @@ module Review.Pattern.As exposing (forbid)
 -}
 
 import Dict exposing (Dict)
-import Elm.Pretty
 import Elm.Syntax.Declaration exposing (Declaration)
 import Elm.Syntax.Expression exposing (Expression)
 import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node exposing (Node(..))
 import Elm.Syntax.Pattern exposing (Pattern)
-import Elm.Syntax.Range exposing (Location)
+import Elm.Syntax.Range exposing (Location, Range)
 import ElmPattern.Extra
-import Pretty
 import Review.Fix
 import Review.ModuleNameLookupTable exposing (ModuleNameLookupTable)
 import Review.Project.Dependency
@@ -161,6 +159,7 @@ type alias ProjectContext =
 type alias ModuleContext =
     { moduleName : ModuleName
     , moduleNameLookup : ModuleNameLookupTable
+    , sourceCodeInRange : Range -> String
     , importSingleVariants : Set ( ModuleName, String )
     , moduleSingleVariants : Set String
     }
@@ -190,15 +189,17 @@ moduleContextToProject =
 projectContextToModule : Rule.ContextCreator ProjectContext ModuleContext
 projectContextToModule =
     Rule.initContextCreator
-        (\moduleName moduleNameLookup projectContext ->
+        (\moduleName moduleNameLookup sourceCodeInRange projectContext ->
             { moduleName = moduleName
             , moduleNameLookup = moduleNameLookup
+            , sourceCodeInRange = sourceCodeInRange
             , importSingleVariants = projectContext.singleVariants
             , moduleSingleVariants = Set.empty
             }
         )
         |> Rule.withModuleName
         |> Rule.withModuleNameLookupTable
+        |> Rule.withSourceCodeExtractor
 
 
 foldProjectContexts : ProjectContext -> ProjectContext -> ProjectContext
@@ -216,6 +217,7 @@ visitDeclaration (Node _ declaration) context =
                         { intoExpression = (Elm.Syntax.Node.value functionDeclaration.declaration).expression
                         , moduleSingleVariants = context.moduleSingleVariants
                         , importSingleVariants = context.importSingleVariants
+                        , sourceCodeInRange = context.sourceCodeInRange
                         , moduleNameLookup = context.moduleNameLookup
                         }
                     )
@@ -251,6 +253,7 @@ expressionVisitor expression context =
                     { intoExpression = lambda.expression
                     , moduleSingleVariants = context.moduleSingleVariants
                     , importSingleVariants = context.importSingleVariants
+                    , sourceCodeInRange = context.sourceCodeInRange
                     , moduleNameLookup = context.moduleNameLookup
                     }
                 )
@@ -264,6 +267,7 @@ expressionVisitor expression context =
                             { intoExpression = caseExpression
                             , moduleSingleVariants = context.moduleSingleVariants
                             , importSingleVariants = context.importSingleVariants
+                            , sourceCodeInRange = context.sourceCodeInRange
                             , moduleNameLookup = context.moduleNameLookup
                             }
                 )
@@ -279,6 +283,7 @@ expressionVisitor expression context =
                                     { intoExpression = (Elm.Syntax.Node.value letFunctionOrValueDeclaration.declaration).expression
                                     , moduleSingleVariants = context.moduleSingleVariants
                                     , importSingleVariants = context.importSingleVariants
+                                    , sourceCodeInRange = context.sourceCodeInRange
                                     , moduleNameLookup = context.moduleNameLookup
                                     }
                                 )
@@ -290,6 +295,7 @@ expressionVisitor expression context =
                                     { intoExpression = letBlock.expression
                                     , moduleSingleVariants = context.moduleSingleVariants
                                     , importSingleVariants = context.importSingleVariants
+                                    , sourceCodeInRange = context.sourceCodeInRange
                                     , moduleNameLookup = context.moduleNameLookup
                                     }
                 )
@@ -303,6 +309,7 @@ checkPattern :
     { intoExpression : Node Expression
     , importSingleVariants : Set ( ModuleName, String )
     , moduleSingleVariants : Set String
+    , sourceCodeInRange : Range -> String
     , moduleNameLookup : ModuleNameLookupTable
     }
     -> Node Pattern
@@ -344,12 +351,9 @@ checkPattern config patternNode =
                           Review.Fix.insertAt intoExpressionStart
                             ([ "let\n"
                              , expressionIndentation
-                             , "    ("
-                             , patternInAs
-                                |> Elm.Syntax.Node.value
-                                |> Elm.Pretty.prettyPattern
-                                |> Pretty.pretty 100
-                             , ") =\n"
+                             , "    "
+                             , config.sourceCodeInRange (patternInAs |> Elm.Syntax.Node.range)
+                             , " =\n"
                              , expressionIndentation
                              , "        "
                              , variable
