@@ -1,55 +1,55 @@
 module ElmPattern.Extra exposing (sub)
 
-import Elm.Syntax.Node exposing (Node)
-import Elm.Syntax.Pattern exposing (Pattern(..))
+import Elm.Syntax.Node
+import Elm.Syntax.Pattern
 
 
 {-| All surface-level child patterns (not recursive).
 -}
-sub : Pattern -> List (Node Pattern)
+sub : Elm.Syntax.Pattern.Pattern -> List (Elm.Syntax.Node.Node Elm.Syntax.Pattern.Pattern)
 sub pattern =
     case pattern of
-        ListPattern patterns ->
+        Elm.Syntax.Pattern.ListPattern patterns ->
             patterns
 
-        TuplePattern patterns ->
+        Elm.Syntax.Pattern.TuplePattern patterns ->
             patterns
 
-        RecordPattern patterns ->
+        Elm.Syntax.Pattern.RecordPattern patterns ->
             patterns |> List.map (Elm.Syntax.Node.map Elm.Syntax.Pattern.VarPattern)
 
-        NamedPattern _ patterns ->
+        Elm.Syntax.Pattern.NamedPattern _ patterns ->
             patterns
 
-        UnConsPattern headPattern tailPattern ->
+        Elm.Syntax.Pattern.UnConsPattern headPattern tailPattern ->
             [ headPattern, tailPattern ]
 
-        AsPattern pattern_ name ->
+        Elm.Syntax.Pattern.AsPattern pattern_ name ->
             [ name |> Elm.Syntax.Node.map Elm.Syntax.Pattern.VarPattern, pattern_ ]
 
-        ParenthesizedPattern inParens ->
+        Elm.Syntax.Pattern.ParenthesizedPattern inParens ->
             [ inParens ]
 
-        VarPattern _ ->
+        Elm.Syntax.Pattern.VarPattern _ ->
             []
 
-        AllPattern ->
+        Elm.Syntax.Pattern.AllPattern ->
             []
 
-        UnitPattern ->
+        Elm.Syntax.Pattern.UnitPattern ->
             []
 
-        CharPattern _ ->
+        Elm.Syntax.Pattern.CharPattern _ ->
             []
 
-        StringPattern _ ->
+        Elm.Syntax.Pattern.StringPattern _ ->
             []
 
-        IntPattern _ ->
+        Elm.Syntax.Pattern.IntPattern _ ->
             []
 
-        HexPattern _ ->
+        Elm.Syntax.Pattern.HexPattern _ ->
             []
 
-        FloatPattern _ ->
+        Elm.Syntax.Pattern.FloatPattern _ ->
             []

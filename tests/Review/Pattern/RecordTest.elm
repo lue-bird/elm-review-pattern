@@ -2,13 +2,13 @@ module Review.Pattern.RecordTest exposing (all)
 
 import Review.Pattern.Record
 import Review.Test
-import Test exposing (Test, describe, test)
+import Test exposing (Test)
 
 
 all : Test
 all =
-    describe "Review.Pattern.Record"
-        [ test "should report but not fix when no `as` is provided"
+    Test.describe "Review.Pattern.Record"
+        [ Test.test "should report but not fix when no `as` is provided"
             (\() ->
                 """module A exposing (..)
 a { field } =
@@ -26,7 +26,7 @@ a { field } =
                             }
                         ]
             )
-        , test "should report but not fix when field is used in record setter"
+        , Test.test "should report but not fix when field is used in record setter"
             (\() ->
                 """module A exposing (..)
 a ({ field } as record) =
@@ -45,7 +45,7 @@ a ({ field } as record) =
                             }
                         ]
             )
-        , test "should report an error in function declaration argument"
+        , Test.test "should report an error in function declaration argument"
             (\() ->
                 """module A exposing (..)
 a ({ field } as record) =
@@ -68,7 +68,30 @@ a (record) =
 """
                         ]
             )
-        , test "should report an error in let function declaration argument"
+        , Test.test "should report an error in function declaration argument (field name not literally field)"
+            (\() ->
+                """module A exposing (..)
+a ({ part } as record) =
+    f part
+"""
+                    |> Review.Test.run Review.Pattern.Record.forbid
+                    |> Review.Test.expectErrors
+                        [ Review.Test.error
+                            { message = "record pattern is forbidden"
+                            , details =
+                                [ "You can replace this pattern by the variable after `as` and convert each use of a destructured field into a record access (`variable.field`)."
+                                , "Record patterns are usually less readable and tricky to use well, see the rule's documentation: https://package.elm-lang.org/packages/lue-bird/elm-review-pattern/latest/Review-Pattern-Record#why"
+                                ]
+                            , under = "{ part }"
+                            }
+                            |> Review.Test.whenFixed
+                                """module A exposing (..)
+a (record) =
+    f record.part
+"""
+                        ]
+            )
+        , Test.test "should report an error in let function declaration argument"
             (\() ->
                 """module A exposing (..)
 a =
@@ -99,7 +122,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in lambda argument"
+        , Test.test "should report an error in lambda argument"
             (\() ->
                 """module A exposing (..)
 a =
@@ -124,7 +147,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in let destructuring pattern"
+        , Test.test "should report an error in let destructuring pattern"
             (\() ->
                 """module A exposing (..)
 a =
@@ -155,7 +178,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in destructuring part of case"
+        , Test.test "should report an error in destructuring part of case"
             (\() ->
                 """module A exposing (..)
 a maybe =

@@ -1,27 +1,28 @@
 module ElmExpression.Extra exposing (sub)
 
-import Elm.Syntax.Expression exposing (Expression)
-import Elm.Syntax.Node exposing (Node(..))
+import Elm.Syntax.Expression
+import Elm.Syntax.Node
 
 
 {-| Get all immediate child expressions of an expression
 -}
-sub : Expression -> List (Node Expression)
+sub : Elm.Syntax.Expression.Expression -> List (Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression)
 sub expression =
     case expression of
         Elm.Syntax.Expression.LetExpression letBlock ->
-            letBlock.declarations
-                |> List.map Elm.Syntax.Node.value
-                |> List.map
-                    (\letDeclaration ->
-                        case letDeclaration of
-                            Elm.Syntax.Expression.LetFunction letFunction ->
-                                letFunction.declaration |> Elm.Syntax.Node.value |> .expression
+            letBlock.expression
+                :: (letBlock.declarations
+                        |> List.map Elm.Syntax.Node.value
+                        |> List.map
+                            (\letDeclaration ->
+                                case letDeclaration of
+                                    Elm.Syntax.Expression.LetFunction letFunction ->
+                                        letFunction.declaration |> Elm.Syntax.Node.value |> .expression
 
-                            Elm.Syntax.Expression.LetDestructuring _ expression_ ->
-                                expression_
-                    )
-                |> (::) letBlock.expression
+                                    Elm.Syntax.Expression.LetDestructuring _ expression_ ->
+                                        expression_
+                            )
+                   )
 
         Elm.Syntax.Expression.ListExpr expressions ->
             expressions
@@ -30,10 +31,10 @@ sub expression =
             expressions
 
         Elm.Syntax.Expression.RecordExpr fields ->
-            fields |> List.map (\(Node _ ( _, value )) -> value)
+            fields |> List.map (\(Elm.Syntax.Node.Node _ ( _, value )) -> value)
 
         Elm.Syntax.Expression.RecordUpdateExpression _ updaters ->
-            updaters |> List.map (\(Node _ ( _, newValue )) -> newValue)
+            updaters |> List.map (\(Elm.Syntax.Node.Node _ ( _, newValue )) -> newValue)
 
         Elm.Syntax.Expression.RecordAccess recordToAccess _ ->
             [ recordToAccess ]

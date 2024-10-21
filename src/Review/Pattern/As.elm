@@ -55,17 +55,17 @@ module Review.Pattern.As exposing (forbid)
 -}
 
 import Dict exposing (Dict)
-import Elm.Syntax.Declaration exposing (Declaration)
-import Elm.Syntax.Expression exposing (Expression)
-import Elm.Syntax.ModuleName exposing (ModuleName)
-import Elm.Syntax.Node exposing (Node(..))
-import Elm.Syntax.Pattern exposing (Pattern)
-import Elm.Syntax.Range exposing (Location, Range)
+import Elm.Syntax.Declaration
+import Elm.Syntax.Expression
+import Elm.Syntax.ModuleName
+import Elm.Syntax.Node
+import Elm.Syntax.Pattern
+import Elm.Syntax.Range
 import ElmPattern.Extra
 import Review.Fix
-import Review.ModuleNameLookupTable exposing (ModuleNameLookupTable)
+import Review.ModuleNameLookupTable
 import Review.Project.Dependency
-import Review.Rule as Rule exposing (Rule)
+import Review.Rule
 import Set exposing (Set)
 
 
@@ -94,30 +94,39 @@ Adding [`jfmengels/elm-review-simplify`](https://dark.elm.dmy.fr/packages/jfmeng
 will do this for you.
 
 -}
-forbid : Rule
+forbid : Review.Rule.Rule
 forbid =
-    Rule.newProjectRuleSchema "Review.Pattern.As.forbid" initialProjectContext
-        |> Rule.providesFixesForProjectRule
-        |> Rule.withModuleVisitor
+    Review.Rule.newProjectRuleSchema "Review.Pattern.As.forbid" initialProjectContext
+        |> Review.Rule.providesFixesForProjectRule
+        |> Review.Rule.withModuleVisitor
             (\moduleSchema ->
                 moduleSchema
-                    |> Rule.withDeclarationListVisitor (\declarationList context -> ( [], declarationList |> List.foldl visitDeclarationForSingleVariant context ))
-                    |> Rule.withExpressionEnterVisitor (\expressionNode context -> ( expressionVisitor expressionNode context, context ))
-                    |> Rule.withDeclarationEnterVisitor (\declarationNode context -> ( visitDeclaration declarationNode context, context ))
+                    |> Review.Rule.withDeclarationListVisitor
+                        (\declarationList context ->
+                            ( [], declarationList |> List.foldl visitDeclarationForSingleVariant context )
+                        )
+                    |> Review.Rule.withExpressionEnterVisitor
+                        (\expressionNode context ->
+                            ( expressionVisitor expressionNode context, context )
+                        )
+                    |> Review.Rule.withDeclarationEnterVisitor
+                        (\declarationNode context ->
+                            ( visitDeclaration declarationNode context, context )
+                        )
             )
-        |> Rule.withModuleContextUsingContextCreator
+        |> Review.Rule.withModuleContextUsingContextCreator
             { fromProjectToModule = projectContextToModule
             , fromModuleToProject = moduleContextToProject
             , foldProjectContexts = foldProjectContexts
             }
-        |> Rule.withContextFromImportedModules
-        |> Rule.withDirectDependenciesProjectVisitor
+        |> Review.Rule.withContextFromImportedModules
+        |> Review.Rule.withDirectDependenciesProjectVisitor
             (\dependencies context ->
                 ( []
                 , visitDependencies dependencies context
                 )
             )
-        |> Rule.fromProjectRuleSchema
+        |> Review.Rule.fromProjectRuleSchema
 
 
 visitDependencies : Dict String Review.Project.Dependency.Dependency -> ProjectContext -> ProjectContext
@@ -152,25 +161,24 @@ visitDependencies dependencies context =
 
 
 type alias ProjectContext =
-    { singleVariants : Set ( ModuleName, String )
+    { singleVariants : Set ( Elm.Syntax.ModuleName.ModuleName, String )
     }
 
 
 type alias ModuleContext =
-    { moduleName : ModuleName
-    , moduleNameLookup : ModuleNameLookupTable
-    , sourceCodeInRange : Range -> String
-    , importSingleVariants : Set ( ModuleName, String )
+    { moduleName : Elm.Syntax.ModuleName.ModuleName
+    , moduleNameLookup : Review.ModuleNameLookupTable.ModuleNameLookupTable
+    , sourceCodeInRange : Elm.Syntax.Range.Range -> String
+    , importSingleVariants : Set ( Elm.Syntax.ModuleName.ModuleName, String )
     , moduleSingleVariants : Set String
     }
 
 
-moduleContextSingleVariants : ModuleContext -> Set ( ModuleName, String )
-moduleContextSingleVariants =
-    \context ->
-        Set.union
-            (context.moduleSingleVariants |> Set.map (\name -> ( context.moduleName, name )))
-            context.importSingleVariants
+moduleContextSingleVariants : ModuleContext -> Set ( Elm.Syntax.ModuleName.ModuleName, String )
+moduleContextSingleVariants context =
+    Set.union
+        (context.moduleSingleVariants |> Set.map (\name -> ( context.moduleName, name )))
+        context.importSingleVariants
 
 
 initialProjectContext : ProjectContext
@@ -178,17 +186,17 @@ initialProjectContext =
     { singleVariants = Set.empty }
 
 
-moduleContextToProject : Rule.ContextCreator ModuleContext ProjectContext
+moduleContextToProject : Review.Rule.ContextCreator ModuleContext ProjectContext
 moduleContextToProject =
-    Rule.initContextCreator
+    Review.Rule.initContextCreator
         (\moduleContext ->
             { singleVariants = moduleContext |> moduleContextSingleVariants }
         )
 
 
-projectContextToModule : Rule.ContextCreator ProjectContext ModuleContext
+projectContextToModule : Review.Rule.ContextCreator ProjectContext ModuleContext
 projectContextToModule =
-    Rule.initContextCreator
+    Review.Rule.initContextCreator
         (\moduleName moduleNameLookup sourceCodeInRange projectContext ->
             { moduleName = moduleName
             , moduleNameLookup = moduleNameLookup
@@ -197,18 +205,19 @@ projectContextToModule =
             , moduleSingleVariants = Set.empty
             }
         )
-        |> Rule.withModuleName
-        |> Rule.withModuleNameLookupTable
-        |> Rule.withSourceCodeExtractor
+        |> Review.Rule.withModuleName
+        |> Review.Rule.withModuleNameLookupTable
+        |> Review.Rule.withSourceCodeExtractor
 
 
 foldProjectContexts : ProjectContext -> ProjectContext -> ProjectContext
 foldProjectContexts context0 context1 =
-    { singleVariants = Set.union context0.singleVariants context1.singleVariants }
+    { singleVariants = Set.union context0.singleVariants context1.singleVariants
+    }
 
 
-visitDeclaration : Node Declaration -> ModuleContext -> List (Rule.Error {})
-visitDeclaration (Node _ declaration) context =
+visitDeclaration : Elm.Syntax.Node.Node Elm.Syntax.Declaration.Declaration -> ModuleContext -> List (Review.Rule.Error {})
+visitDeclaration (Elm.Syntax.Node.Node _ declaration) context =
     case declaration of
         Elm.Syntax.Declaration.FunctionDeclaration functionDeclaration ->
             (Elm.Syntax.Node.value functionDeclaration.declaration).arguments
@@ -226,12 +235,12 @@ visitDeclaration (Node _ declaration) context =
             []
 
 
-visitDeclarationForSingleVariant : Node Declaration -> ModuleContext -> ModuleContext
-visitDeclarationForSingleVariant (Node _ declaration) context =
+visitDeclarationForSingleVariant : Elm.Syntax.Node.Node Elm.Syntax.Declaration.Declaration -> ModuleContext -> ModuleContext
+visitDeclarationForSingleVariant (Elm.Syntax.Node.Node _ declaration) context =
     case declaration of
         Elm.Syntax.Declaration.CustomTypeDeclaration choiceTypeDeclaration ->
             case choiceTypeDeclaration.constructors of
-                (Node _ singleVariant) :: [] ->
+                (Elm.Syntax.Node.Node _ singleVariant) :: [] ->
                     { context
                         | moduleSingleVariants =
                             context.moduleSingleVariants |> Set.insert (Elm.Syntax.Node.value singleVariant.name)
@@ -244,7 +253,7 @@ visitDeclarationForSingleVariant (Node _ declaration) context =
             context
 
 
-expressionVisitor : Node Expression -> ModuleContext -> List (Rule.Error {})
+expressionVisitor : Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression -> ModuleContext -> List (Review.Rule.Error {})
 expressionVisitor expression context =
     case Elm.Syntax.Node.value expression of
         Elm.Syntax.Expression.LambdaExpression lambda ->
@@ -275,7 +284,7 @@ expressionVisitor expression context =
 
         Elm.Syntax.Expression.LetExpression letBlock ->
             List.concatMap
-                (\(Node _ letDeclaration) ->
+                (\(Elm.Syntax.Node.Node _ letDeclaration) ->
                     case letDeclaration of
                         Elm.Syntax.Expression.LetFunction letFunctionOrValueDeclaration ->
                             List.concatMap
@@ -306,20 +315,20 @@ expressionVisitor expression context =
 
 
 checkPattern :
-    { intoExpression : Node Expression
-    , importSingleVariants : Set ( ModuleName, String )
+    { intoExpression : Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression
+    , importSingleVariants : Set ( Elm.Syntax.ModuleName.ModuleName, String )
     , moduleSingleVariants : Set String
-    , sourceCodeInRange : Range -> String
-    , moduleNameLookup : ModuleNameLookupTable
+    , sourceCodeInRange : Elm.Syntax.Range.Range -> String
+    , moduleNameLookup : Review.ModuleNameLookupTable.ModuleNameLookupTable
     }
-    -> Node Pattern
-    -> List (Rule.Error {})
+    -> Elm.Syntax.Node.Node Elm.Syntax.Pattern.Pattern
+    -> List (Review.Rule.Error {})
 checkPattern config patternNode =
     case patternNode of
-        Node patternRange (Elm.Syntax.Pattern.AsPattern patternInAs (Node variableRange variable)) ->
+        Elm.Syntax.Node.Node patternRange (Elm.Syntax.Pattern.AsPattern patternInAs (Elm.Syntax.Node.Node variableRange variable)) ->
             case patternInAs |> patternKind config of
                 Narrowing ->
-                    [ Rule.error
+                    [ Review.Rule.error
                         { message = "as pattern is forbidden"
                         , details =
                             [ "The variable introduced in this ... as " ++ variable ++ " pattern has a broader type than the case allows. It's best to convert the narrow values into a broad type as late as possible or not at all."
@@ -330,7 +339,7 @@ checkPattern config patternNode =
                     ]
 
                 Destructuring ->
-                    [ Rule.errorWithFix
+                    [ Review.Rule.errorWithFix
                         { message = "as pattern is forbidden"
                         , details =
                             [ "You can replace this ... as " ++ variable ++ " pattern by a let."
@@ -340,7 +349,7 @@ checkPattern config patternNode =
                         variableRange
                         [ Review.Fix.replaceRangeBy patternRange variable
                         , let
-                            intoExpressionStart : Location
+                            intoExpressionStart : Elm.Syntax.Range.Location
                             intoExpressionStart =
                                 (Elm.Syntax.Node.range config.intoExpression).start
 
@@ -367,7 +376,7 @@ checkPattern config patternNode =
                         ]
                     ]
 
-        Node _ nonAsPattern ->
+        Elm.Syntax.Node.Node _ nonAsPattern ->
             nonAsPattern |> ElmPattern.Extra.sub |> List.concatMap (checkPattern config)
 
 
@@ -378,15 +387,15 @@ type PatternKind
 
 patternKind :
     { context
-        | importSingleVariants : Set ( ModuleName, String )
+        | importSingleVariants : Set ( Elm.Syntax.ModuleName.ModuleName, String )
         , moduleSingleVariants : Set String
-        , moduleNameLookup : ModuleNameLookupTable
+        , moduleNameLookup : Review.ModuleNameLookupTable.ModuleNameLookupTable
     }
-    -> Node Pattern
+    -> Elm.Syntax.Node.Node Elm.Syntax.Pattern.Pattern
     -> PatternKind
-patternKind context (Node patternRange pattern) =
+patternKind context (Elm.Syntax.Node.Node patternRange pattern) =
     let
-        patternListKind : List (Node Pattern) -> PatternKind
+        patternListKind : List (Elm.Syntax.Node.Node Elm.Syntax.Pattern.Pattern) -> PatternKind
         patternListKind =
             \patterns ->
                 if patterns |> List.any (\partPattern -> (partPattern |> patternKind context) == Narrowing) then
@@ -459,5 +468,5 @@ patternKind context (Node patternRange pattern) =
 
 
 stringToModuleName : String -> List String
-stringToModuleName =
-    String.split "."
+stringToModuleName moduleNameString =
+    moduleNameString |> String.split "."

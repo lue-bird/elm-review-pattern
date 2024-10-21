@@ -7,7 +7,7 @@ module Review.Pattern.Record exposing (forbid)
 
 ## why
 
-  - Readability and error prone-ness: Similar to exposing from an import, it becomes hard to follow where a certain value originated from
+  - readability and error prone-ness: Similar to exposing from an import, it becomes hard to follow where a certain value originated from
 
         checkForConcatOnMap { nodeRange, firstArg } =
             case toSpecificCall ( "List", "map" ) firstArg of
@@ -38,7 +38,7 @@ module Review.Pattern.Record exposing (forbid)
 
   - less syntax to learn to use right and keep in your head
 
-  - Name clashes: Using record destructuring relies on the assumption that no values
+  - name clashes: Using record destructuring relies on the assumption that no values
     with the same name will _ever_ in the lifetime of this file be introduced.
 
         module Ui exposing (icon)
@@ -96,7 +96,7 @@ module Review.Pattern.Record exposing (forbid)
     This mixed use of record access and record destructuring is quite ugly I'd say.
     Maybe just use record access consistently so you don't have these problems?
 
-  - Scalability: You can't really use record destructuring anywhere except at the most outer argument/let level
+  - leaves potential future need to refactor: You can't really use record destructuring anywhere except at the most outer argument/let level
     because the field names quickly lose context and introduce name clashes.
 
         checkForConcatOnMap { nodeRange, firstArg } =
@@ -112,15 +112,15 @@ module Review.Pattern.Record exposing (forbid)
 
 -}
 
-import Elm.Syntax.Declaration exposing (Declaration)
-import Elm.Syntax.Expression exposing (Expression)
-import Elm.Syntax.Node exposing (Node(..))
-import Elm.Syntax.Pattern exposing (Pattern)
-import Elm.Syntax.Range exposing (Range)
+import Elm.Syntax.Declaration
+import Elm.Syntax.Expression
+import Elm.Syntax.Node
+import Elm.Syntax.Pattern
+import Elm.Syntax.Range
 import ElmExpression.Extra
 import ElmPattern.Extra
 import Review.Fix
-import Review.Rule as Rule exposing (Rule)
+import Review.Rule
 
 
 {-| Forbid `{ field, ... }` record patterns.
@@ -143,28 +143,28 @@ Patterns without `as` will not get an auto-fix, so either manually apply this ch
 or add a temporary `as`.
 
 -}
-forbid : Rule
+forbid : Review.Rule.Rule
 forbid =
-    Rule.newModuleRuleSchemaUsingContextCreator "Review.Pattern.Record" initialContext
-        |> Rule.providesFixesForModuleRule
-        |> Rule.withDeclarationEnterVisitor (\decl context -> ( visitDeclaration decl, context ))
-        |> Rule.withExpressionEnterVisitor (\expr context -> ( visitExpression expr, context ))
-        |> Rule.fromModuleRuleSchema
+    Review.Rule.newModuleRuleSchemaUsingContextCreator "Review.Pattern.Record" initialContext
+        |> Review.Rule.providesFixesForModuleRule
+        |> Review.Rule.withDeclarationEnterVisitor (\decl context -> ( visitDeclaration decl, context ))
+        |> Review.Rule.withExpressionEnterVisitor (\expr context -> ( visitExpression expr, context ))
+        |> Review.Rule.fromModuleRuleSchema
 
 
 type alias Context =
     {}
 
 
-initialContext : Rule.ContextCreator () Context
+initialContext : Review.Rule.ContextCreator () Context
 initialContext =
-    Rule.initContextCreator
+    Review.Rule.initContextCreator
         (\() ->
             {}
         )
 
 
-visitExpression : Node Expression -> List (Rule.Error {})
+visitExpression : Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression -> List (Review.Rule.Error {})
 visitExpression expressionNode =
     case Elm.Syntax.Node.value expressionNode of
         Elm.Syntax.Expression.LambdaExpression lambda ->
@@ -181,7 +181,7 @@ visitExpression expressionNode =
 
         Elm.Syntax.Expression.LetExpression letBlock ->
             List.concatMap
-                (\(Node _ letDeclaration) ->
+                (\(Elm.Syntax.Node.Node _ letDeclaration) ->
                     case letDeclaration of
                         Elm.Syntax.Expression.LetFunction letFunctionOrValueDeclaration ->
                             List.concatMap
@@ -200,8 +200,8 @@ visitExpression expressionNode =
             []
 
 
-visitDeclaration : Node Declaration -> List (Rule.Error {})
-visitDeclaration (Node _ declaration) =
+visitDeclaration : Elm.Syntax.Node.Node Elm.Syntax.Declaration.Declaration -> List (Review.Rule.Error {})
+visitDeclaration (Elm.Syntax.Node.Node _ declaration) =
     case declaration of
         Elm.Syntax.Declaration.FunctionDeclaration functionDeclaration ->
             (Elm.Syntax.Node.value functionDeclaration.declaration).arguments
@@ -215,13 +215,13 @@ visitDeclaration (Node _ declaration) =
 
 
 checkPattern :
-    { intoExpression : Node Expression }
-    -> Node Pattern
-    -> List (Rule.Error {})
+    { intoExpression : Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression }
+    -> Elm.Syntax.Node.Node Elm.Syntax.Pattern.Pattern
+    -> List (Review.Rule.Error {})
 checkPattern config patternNode =
     case patternNode of
-        Node recordPatternRange (Elm.Syntax.Pattern.RecordPattern _) ->
-            [ Rule.error
+        Elm.Syntax.Node.Node recordPatternRange (Elm.Syntax.Pattern.RecordPattern _) ->
+            [ Review.Rule.error
                 { message = "record pattern is forbidden"
                 , details =
                     [ "You can replace this pattern by a variable and convert each use of a destructured field into a record access (`variable.field`). If you add `as yourRecordName`, I can automatically fix this."
@@ -231,9 +231,9 @@ checkPattern config patternNode =
                 recordPatternRange
             ]
 
-        Node asPatternRange (Elm.Syntax.Pattern.AsPattern (Node recordPatternRange (Elm.Syntax.Pattern.RecordPattern fields)) (Node _ variable)) ->
-            [ if fields |> List.any (\(Node _ field) -> isSpecificVariableUsedInRecordSetter field config.intoExpression) then
-                Rule.error
+        Elm.Syntax.Node.Node asPatternRange (Elm.Syntax.Pattern.AsPattern (Elm.Syntax.Node.Node recordPatternRange (Elm.Syntax.Pattern.RecordPattern fields)) (Elm.Syntax.Node.Node _ variable)) ->
+            [ if fields |> List.any (\(Elm.Syntax.Node.Node _ field) -> isSpecificVariableUsedInRecordSetter field config.intoExpression) then
+                Review.Rule.error
                     { message = "record pattern is forbidden"
                     , details =
                         [ "You can replace this pattern by a variable and convert each use of a destructured field into a record access (`variable.field`)."
@@ -244,7 +244,7 @@ checkPattern config patternNode =
                     recordPatternRange
 
               else
-                Rule.errorWithFix
+                Review.Rule.errorWithFix
                     { message = "record pattern is forbidden"
                     , details =
                         [ "You can replace this pattern by the variable after `as` and convert each use of a destructured field into a record access (`variable.field`)."
@@ -255,32 +255,35 @@ checkPattern config patternNode =
                     (Review.Fix.replaceRangeBy asPatternRange variable
                         :: (fields
                                 |> List.concatMap
-                                    (\(Node _ field) ->
+                                    (\(Elm.Syntax.Node.Node _ field) ->
                                         config.intoExpression
                                             |> specificVariableUses field
-                                            |> List.map (\useRange -> Review.Fix.replaceRangeBy useRange (variable ++ ".field"))
+                                            |> List.map
+                                                (\useRange ->
+                                                    Review.Fix.replaceRangeBy useRange (variable ++ "." ++ field)
+                                                )
                                     )
                            )
                     )
             ]
 
-        Node _ nonRecordPattern ->
+        Elm.Syntax.Node.Node _ nonRecordPattern ->
             nonRecordPattern |> ElmPattern.Extra.sub |> List.concatMap (checkPattern config)
 
 
-isSpecificVariableUsedInRecordSetter : String -> Node Expression -> Bool
-isSpecificVariableUsedInRecordSetter specificVariableName (Node _ expression) =
+isSpecificVariableUsedInRecordSetter : String -> Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression -> Bool
+isSpecificVariableUsedInRecordSetter specificVariableName (Elm.Syntax.Node.Node _ expression) =
     case expression of
-        Elm.Syntax.Expression.RecordUpdateExpression (Node _ recordToUpdate) setters ->
+        Elm.Syntax.Expression.RecordUpdateExpression (Elm.Syntax.Node.Node _ recordToUpdate) setters ->
             (recordToUpdate == specificVariableName)
-                || (setters |> List.any (\(Node _ ( _, newValue )) -> newValue |> isSpecificVariableUsedInRecordSetter specificVariableName))
+                || (setters |> List.any (\(Elm.Syntax.Node.Node _ ( _, newValue )) -> newValue |> isSpecificVariableUsedInRecordSetter specificVariableName))
 
         notDirectlyReplaceable ->
             notDirectlyReplaceable |> ElmExpression.Extra.sub |> List.any (\sub -> sub |> isSpecificVariableUsedInRecordSetter specificVariableName)
 
 
-specificVariableUses : String -> Node Expression -> List Range
-specificVariableUses specificVariableName (Node expressionRange expression) =
+specificVariableUses : String -> Elm.Syntax.Node.Node Elm.Syntax.Expression.Expression -> List Elm.Syntax.Range.Range
+specificVariableUses specificVariableName (Elm.Syntax.Node.Node expressionRange expression) =
     case expression of
         Elm.Syntax.Expression.FunctionOrValue [] variableName ->
             if variableName == specificVariableName then

@@ -2,13 +2,13 @@ module Review.Pattern.AsTest exposing (all)
 
 import Review.Pattern.As
 import Review.Test
-import Test exposing (Test, describe, test)
+import Test exposing (Test)
 
 
 all : Test
 all =
-    describe "Review.Pattern.As.forbid"
-        [ test "should not report an error when using let"
+    Test.describe "Review.Pattern.As.forbid"
+        [ Test.test "should not report an error when using let"
             (\() ->
                 """module A exposing (..)
 a record =
@@ -21,7 +21,7 @@ a record =
                     |> Review.Test.run Review.Pattern.As.forbid
                     |> Review.Test.expectNoErrors
             )
-        , test "should report an error in function declaration argument"
+        , Test.test "should report an error in function declaration argument"
             (\() ->
                 """module A exposing (..)
 a ({ field } as record) =
@@ -48,7 +48,7 @@ a (record) =
 """
                         ]
             )
-        , test "should report an error in let function declaration argument"
+        , Test.test "should report an error in let function declaration argument"
             (\() ->
                 """module A exposing (..)
 a =
@@ -83,7 +83,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in lambda argument"
+        , Test.test "should report an error in lambda argument"
             (\() ->
                 """module A exposing (..)
 a =
@@ -112,7 +112,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in let destructuring pattern"
+        , Test.test "should report an error in let destructuring pattern"
             (\() ->
                 """module A exposing (..)
 a =
@@ -147,7 +147,7 @@ a =
 """
                         ]
             )
-        , test "should report an error in destructuring part of case"
+        , Test.test "should report an error in destructuring part of case"
             (\() ->
                 """module A exposing (..)
 a maybe =
@@ -184,7 +184,7 @@ a maybe =
 """
                         ]
             )
-        , test "should report an error in destructuring part of case with module single-variant"
+        , Test.test "should report an error in destructuring part of case with module single-variant"
             (\() ->
                 """module A exposing (..)
 type Single a
@@ -225,7 +225,7 @@ a maybe =
 """
                         ]
             )
-        , test "should report an error in narrowing part of case"
+        , Test.test "should report an error in narrowing part of case"
             (\() ->
                 """module A exposing (..)
 a =
